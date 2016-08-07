@@ -48,7 +48,7 @@ jira-3035538708-picc5   1/1       Running   0          2m
 
 ### Configure Jira
 
-Access you Jira install using a local port forward. You don't want to get hacked right out of the gate.
+Access your Jira install using a local port forward. You don't want to get hacked right out of the gate.
 
 ```
 kubectl port-forward jira-3035538708-picc5 8080:8080
