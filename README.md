@@ -20,25 +20,6 @@ These are my rough notes on how to run a single node Jira server using the built
 gcloud compute disks create jira-home
 ```
 
-### Create an External Service
-
-```
-kubectl create -f jira-service.yaml
-```
-
-```
-service "jira" created
-```
-
-```
-kubectl get services
-```
-```
-NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
-jira         10.215.240.111   XXX.XXX.XXX.XXX   8080/TCP   1m
-kubernetes   10.215.240.1     <none>            443/TCP    14d
-```
-
 ### Jira Deployment
 
 ```
@@ -83,3 +64,26 @@ Visit http://127.0.0.1:8080 in your browser and complete the initial setup.
 ![Jira Setup](images/jira-2.png)
 ![Jira Setup](images/jira-3.png)
 ![Jira Setup](images/jira-4.png)
+
+### Create an External Service
+
+Once you have Jira all setup you can expose it on the public internet. This setup is not secure so you'll need to do some extra work get HTTPS working.
+
+```
+kubectl create -f jira-service.yaml
+```
+
+```
+service "jira" created
+```
+
+```
+kubectl get services
+```
+```
+NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
+jira         10.215.240.111   XXX.XXX.XXX.XXX   8080/TCP   1m
+kubernetes   10.215.240.1     <none>            443/TCP    14d
+```
+
+At this point you can visit Jira on http://XXX.XXX.XXX.XXX:8080.
