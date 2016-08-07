@@ -1,9 +1,17 @@
+# This Dockerfile is not awesome.
+# Use it as a starting point for your own Jira image.
 FROM centos:7.2.1511
 
 RUN mkdir -p /opt/
 RUN mkdir /opt/jira-home
-RUN curl -O https://storage.googleapis.com/atlassian/atlassian-jira-software-7.1.9.tar.gz
-RUN curl -R -O https://storage.googleapis.com/atlassian/jdk-8u101-linux-x64.tar.gz
+
+# Host atlassian-jira-software-7.1.9.tar.gz somewhere you download from.
+# Download the tar archive from https://www.atlassian.com/software/jira/download.
+RUN curl -O https://example.com/atlassian-jira-software-7.1.9.tar.gz
+
+# Host jdk-8u101-linux-x64.tar.gz somewhere you download from.
+# Download the tar archive from http://www.oracle.com/technetwork/java/javase/downloads/index.html.
+RUN curl -R -O https://example.com/jdk-8u101-linux-x64.tar.gz
 
 RUN tar -xvf jdk-8u101-linux-x64.tar.gz
 RUN mv jdk1.8.0_101 /opt/
