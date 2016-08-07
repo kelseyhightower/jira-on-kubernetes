@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: jira
+  name: jira
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: jira
+      name: jira
+    spec:
+      containers:
+        - name: jira
+          image: "kelseyhightower/jira:7.1.9-standalone"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1G"
+          volumeMounts:
+            - name: "jira-home"
+              mountPath: /opt/jira-home
+      volumes:
+        - name: "jira-home"
+          gcePersistentDisk:
+            pdName: jira-home
+            fsType: ext4
