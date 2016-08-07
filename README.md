@@ -79,7 +79,7 @@ Forwarding from [::1]:8080 -> 8080
 
 Visit http://127.0.0.1:8080 in your browser and complete the initial setup.
 
-![Jira Setup](jira-1.png)
-![Jira Setup](jira-2.png)
-![Jira Setup](jira-3.png)
-![Jira Setup](jira-4.png)
+![Jira Setup](images/jira-1.png)
+![Jira Setup](images/jira-2.png)
+![Jira Setup](images/jira-3.png)
+![Jira Setup](images/jira-4.png)
