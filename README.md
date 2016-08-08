@@ -26,7 +26,7 @@ gcloud compute disks create jira-home
 kubectl create -f jira-deployment.yaml
 ```
 
-This may take a while! Currently this container is huge! Like `1.972 GB` huge. I'll fix that later.
+This may take a while! Currently this container is big! Like `873 MB` big. I'll improve that later.
 
 ```
 kubectl get pods
