@@ -14,11 +14,11 @@ spec:
     spec:
       containers:
         - name: jira
-          image: "kelseyhightower/jira:7.1.9-standalone"
+          image: "gcr.io/hightowerlabs/jira:7.3.6-standalone"
           resources:
             requests:
-              cpu: "500m"
-              memory: "1G"
+              cpu: "2"
+              memory: "2G"
           volumeMounts:
             - name: "jira-home"
               mountPath: /opt/jira-home
