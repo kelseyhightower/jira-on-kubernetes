@@ -20,6 +20,47 @@ These are my rough notes on how to run a single node Jira server using the built
 gcloud compute disks create jira-home
 ```
 
+### Optional: Create a GKE Cluster 
+The Jira container requires a minimum of 2 CPU and 2GB memory. The n1-standard-4 image is recommended for your node pool, but any combination that meets that minimum will work without requiring changing the jira-deployment.yaml file.
+
+```
+gcloud container clusters create jira-cluster --num-nodes 1 --machine-type n1-standard-4 && gcloud config set container/cluster jira-cluster
+``` 
+
+### Optional: Create a Cloud SQL for PostgreSQL Instance
+In the same project that you created your GKE cluster, create a new Cloud SQL for PostgreSQL instance. 
+
+Increase the CPU/Memory as needed. Replace [REGION] with the same region used for your GKE cluster. The instance is set to 100GB of SSD and will automatically and permanently increase when it runs out of available space. See the [Cloud SQL]((https://cloud.google.com/sdk/gcloud/reference/sql/instances/create) documentation for additional flags. 
+
+```
+gcloud sql instances create jira-data --database-version=POSTGRES_9_6 --cpu=1 --memory=3840MiB --region=[REGION] --maintenance-release-channel=PRODUCTION --storage-size=100GB --storage-type=SSD
+```
+
+Set a password for the default user:
+```
+gcloud sql users set-password postgres no-host --instance=jira-data --password=[PASSWORD]
+```
+
+Log into the CloudSQL instance and create a new database:
+
+```
+gcloud sql connect jira-data --user=postgres
+```
+
+```
+CREATE DATABASE jiradb WITH ENCODING 'UNICODE' LC_COLLATE 'C' LC_CTYPE 'C' TEMPLATE template0;
+```
+
+### Optional: Create a Cloud SQL Proxy Container
+Follow the [documentation](https://cloud.google.com/sql/docs/postgres/connect-container-engine) steps for creating a service account and secrets for your cluster to access Cloud SQL. Make sure you enable the Cloud SQL API!
+
+Use jira-deployment-postgres.yaml for your pod and update the [INSTANCE_CONNECTION_NAME] for the cloudsql-proxy container. The instance connection name should be in the format of project:region:instance-name. For example: myjiradeployment:us-central1:jira-data.
+
+Replace jira-deployment.yaml with jira-deployment-postgres.yaml:
+```
+mv jira-deployment-postgres.yaml jira-deployment.yaml 
+```
+
 ### Jira Deployment
 
 ```
@@ -46,6 +87,12 @@ NAME                    READY     STATUS    RESTARTS   AGE
 jira-3035538708-picc5   1/1       Running   0          2m
 ```
 
+If you deployed the sqlproxy container as well the result is 2/2 containers running:
+```
+NAME                    READY     STATUS    RESTARTS   AGE
+jira-3035538708-picc5   2/2       Running   0          2m
+```
+
 ### Configure Jira
 
 Access your Jira install using a local port forward. You don't want to get hacked right out of the gate.
@@ -58,12 +105,20 @@ Forwarding from 127.0.0.1:8080 -> 8080
 Forwarding from [::1]:8080 -> 8080
 ```
 
-Visit http://127.0.0.1:8080 in your browser and complete the initial setup.
+Visit http://127.0.0.1:8080 in your browser and complete the initial setup. Choose your setup route depending on if you created the PostgreSQL database or not. See the [Setup Wizard](https://confluence.atlassian.com/adminjiraserver072/running-the-setup-wizard-828787582.html) documentation for further information.
+
+1. Setup with defaults
 
 ![Jira Setup](images/jira-1.png)
 ![Jira Setup](images/jira-2.png)
 ![Jira Setup](images/jira-3.png)
 ![Jira Setup](images/jira-4.png)
+
+2. Optional: Manual Jira Configuration with External Database
+The Jira container sees the sqlproxy container as localhost so your database is at 127.0.0.1 and a port of 5432. For the example I created a user, dbuser, specifically for the Jira container. Use any instance user with full access to your jira-data database.
+
+![Jira Setup](images/jira-5.png)
+![Jira Setup](images/jira-6.png)
 
 ### Create an External Service
 
