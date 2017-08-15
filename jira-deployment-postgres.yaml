@@ -1,0 +1,54 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: jira
+  name: jira
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: jira
+      name: jira
+    spec:
+      containers:
+        - name: jira
+          image: "gcr.io/hightowerlabs/jira:7.3.6-standalone"
+          resources:
+            requests:
+              cpu: "2"
+              memory: "2G"
+          volumeMounts:
+            - name: "jira-home"
+              mountPath: /opt/jira-home
+        # [START proxy_container]
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.09
+          command: ["/cloud_sql_proxy", "--dir=/cloudsql",
+                    "-instances=[INSTANCE_CONNECTION_NAME]=tcp:5432",
+                    "-credential_file=/secrets/cloudsql/credentials.json"]
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+            - name: ssl-certs
+              mountPath: /etc/ssl/certs
+            - name: cloudsql
+              mountPath: /cloudsql
+        # [END proxy_container]
+      # [START volumes]
+      volumes:
+        - name: "jira-home"
+          gcePersistentDisk:
+            pdName: jira-home
+            fsType: ext4
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
+        - name: ssl-certs
+          hostPath:
+            path: /etc/ssl/certs
+        - name: cloudsql
+          emptyDir:
+      # [END volumes]
